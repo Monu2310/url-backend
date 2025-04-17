@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-top: 50px;
+            margin-bottom: 1rem;
+            opacity: 0;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            margin-bottom: 50px;
+        }
+
+        .form-container input {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            width: 300px;
+        }
+
+        .form-container button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff6f61;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background-color: #ff3b2f;
+        }
+
+        table {
+            width: 80%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            opacity: 0;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        table th {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        footer {
+            position: relative;
+            margin-top: 50px;
+            font-size: 0.9rem;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Welcome to the URL Shortener</h1>
+
+    <% if (locals.id) { %>
+        <p id="shortened-url">Your shortened URL: <a href="http://localhost:8001/url/<%= id %>" target="_blank">http://localhost:8001/url/<%= id %></a></p>
+    <% } %>
+
+    <p id="subtitle">Shorten your long URLs in seconds!</p>
+
+    <div class="form-container" id="form-container">
+        <form action="/url" method="POST">
+            <input type="text" name="url" placeholder="Enter your long URL here" required>
+            <button type="submit">Shorten URL</button>
+        </form>
+    </div>
+
+    <% if (locals.urls) { %>
+        <table id="url-table">
+            <thead>
+                <tr>
+                    <th>Sr. No.</th>
+                    <th>ShortID</th>
+                    <th>Redirect</th>
+                    <th>Clicks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% urls.forEach((url, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= url.shortId %></td>
+                        <td><a href="<%= url.redirectUrl %>" target="_blank"><%= url.redirectUrl %></a></td>
+                        <td><%= url.visitHistory.length %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } %>
+
+    <footer id="footer">Made with ❤️ by Mayank</footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+        // Title animation
+        anime({
+            targets: '#title',
+            translateY: [-50, 0],
+            opacity: [0, 1],
+            duration: 1000,
+            easing: 'easeOutExpo'
+        });
+
+        // Subtitle animation
+        anime({
+            targets: '#subtitle',
+            translateY: [-30, 0],
+            opacity: [0, 1],
+            duration: 1200,
+            delay: 500,
+            easing: 'easeOutExpo'
+        });
+
+        // Form container animation
+        anime({
+            targets: '#form-container',
+            scale: [0.8, 1],
+            opacity: [0, 1],
+            duration: 1500,
+            delay: 1000,
+            easing: 'easeOutElastic(1, .8)'
+        });
+
+        // Table animation
+        anime({
+            targets: '#url-table',
+            translateY: [50, 0],
+            opacity: [0, 1],
+            duration: 1500,
+            delay: 1500,
+            easing: 'easeOutExpo'
+        });
+
+        // Footer animation
+        anime({
+            targets: '#footer',
+            opacity: [0, 1],
+            duration: 1000,
+            delay: 2000,
+            easing: 'easeOutExpo'
+        });
+
+        // Scroll animations
+        const scrollElements = document.querySelectorAll('table, .form-container, footer');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    anime({
+                        targets: entry.target,
+                        translateY: [50, 0],
+                        opacity: [0, 1],
+                        duration: 1000,
+                        easing: 'easeOutExpo'
+                    });
+                    observer.unobserve(entry.target); // Trigger animation only once
+                }
+            });
+        });
+
+        scrollElements.forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
