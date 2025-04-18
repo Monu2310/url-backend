@@ -1,9 +1,14 @@
 const express = require('express')
+const cookieParser = require('cookie-parser')
+const {restrictToLoggedInUserOnly, checkAuth} = require('./middlewares/auth')
 const {connectToMongoDB} = require("./connect")
 const urlRoute = require('./routes/url')
 const staticRoute = require('./routes/staticRouter')
 const path = require('path')    
 const URL = require('./models/url')
+const userRoute = require('./routes/user')
+
+
 const app = express()
 const port = 8001
 
@@ -21,29 +26,10 @@ app.set('view engine', 'ejs')
 app.set('views', path.resolve('./views'))
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
-app.use("/url", urlRoute)
-
-app.use("/", staticRoute)
-
-// app.get("/:shortId", async (req, res) => {
-//     const shortId = req.params.shortId;
-
-//     try {
-//         const entry = await URL.findOneAndUpdate(
-//             { shortId },
-//             { $push: { visitHistory: { timestamp: Date.now() } } }
-//         );
-
-//         if (!entry) {
-//             return res.status(404).send("Short URL not found");
-//         }
-
-//         res.redirect(entry.redirectUrl);
-//     } catch (err) {
-//         console.error("Error fetching short URL:", err);
-//         res.status(500).send("Internal server error");
-//     }
-// });
+app.use(cookieParser())
+app.use("/url", restrictToLoggedInUserOnly,urlRoute)
+app.use("/user", userRoute)
+app.use("/", checkAuth,staticRoute)
 
 app.get("/:shortId", async (req, res) => {
     const shortId = req.params.shortId
